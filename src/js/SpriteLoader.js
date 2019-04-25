@@ -19,19 +19,18 @@ export default class SpriteLoader {
 
     loadAtlas(...obj) {
         return new Promise((resolve, reject) => {
-
-            obj.forEach(o => {
+            Promise.all(obj.map(o => {
                 return new Promise((resolve, reject) => {
                     let image = new Image();
                     image.src = o.url;
                     image.onload = () => {
                         this.sheets[o.name] = image;
+                        resolve();
                     }
-                    resolve();
                 })
-
+            })).then(() => {
+                resolve();
             })
-
         })
     }
 

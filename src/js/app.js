@@ -25,39 +25,28 @@ class Game {
     }
 
     loadRes() {
-        // return new Promise((resolve, reject) => {
-        //     this.sprites = new spriteLoader();
-        //     this.sprites.loadAtlas('main', 'img/tileset.png').then(() => {
-        //         this.sprites.createPattern('ground', 16, 16, 0, 0, 'main');
-        //         this.sprites.createPattern('sky', 16, 16, 3 * 16, 21 * 16, 'main');
-        //         this.sprites.createPattern('brick', 16, 16, 32, 0, 'main');
-        //         this.sprites.createSprite('cloud', 40, 32, 0, 20 * 16, 'main');
-
-        //         this.sprites.loadAtlas('mario', 'img/mario.png').then(() => {
-        //             this.sprites.createSprite('marioBig', 16, 32, 16 * 5, 1, 'mario');                 
-        //             resolve();
-        //         })
-        //     })
-        // })
-
-
-        return new Promise(() => {
+        return new Promise((resolve) => {
             this.sprites = new spriteLoader();
             this.sprites.loadAtlas({
                 name: 'main',
                 url: 'img/tileset.png'
-            },{
+            }, {
                 name: 'mario',
                 url: 'img/mario.png'
             })
-            .then(()=>{
-                this.sprites.createPattern('ground', 16, 16, 0, 0, 'main');
-                this.sprites.createPattern('sky', 16, 16, 3 * 16, 21 * 16, 'main');
-                this.sprites.createPattern('brick', 16, 16, 32, 0, 'main');
-                this.sprites.createSprite('cloud', 40, 32, 0, 20 * 16, 'main');
-                this.sprites.createSprite('marioBig', 16, 32, 16 * 5, 1, 'mario');
+            .then(() => {
+                this.createSprites();
+                resolve();
             })
         })
+    }
+
+    createSprites() {
+        this.sprites.createPattern('ground', 16, 16, 0, 0, 'main');
+        this.sprites.createPattern('sky', 16, 16, 3 * 16, 21 * 16, 'main');
+        this.sprites.createPattern('brick', 16, 16, 32, 0, 'main');
+        this.sprites.createSprite('cloud', 40, 32, 0, 20 * 16, 'main');
+        this.sprites.createSprite('marioBig', 16, 32, 16 * 5, 1, 'mario');
     }
 
     initObjects() {
