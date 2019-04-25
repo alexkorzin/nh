@@ -6,14 +6,32 @@ export default class SpriteLoader {
         this.sprites = {};
     }
 
-    loadAtlas(name, url) {
+    // loadAtlas(name, url) {
+    //     return new Promise((resolve, reject) => {
+    //         let image = new Image();
+    //         image.src = url;
+    //         image.onload = () => {
+    //             this.sheets[name] = image;
+    //             resolve();
+    //         }
+    //     })
+    // }
+
+    loadAtlas(...obj) {
         return new Promise((resolve, reject) => {
-            let image = new Image();
-            image.src = url;
-            image.onload = () => {
-                this.sheets[name] = image;
-                resolve();
-            }
+
+            obj.forEach(o => {
+                return new Promise((resolve, reject) => {
+                    let image = new Image();
+                    image.src = o.url;
+                    image.onload = () => {
+                        this.sheets[o.name] = image;
+                    }
+                    resolve();
+                })
+
+            })
+
         })
     }
 
@@ -32,7 +50,9 @@ export default class SpriteLoader {
         let ctx = canvas.getContext('2d');
         canvas.height = height;
         canvas.width = width;
-        ctx.drawImage(this.sheets[sheet], xOffset, yOffset, width, height,  0, 0, width, height);
+        ctx.drawImage(this.sheets[sheet], xOffset, yOffset, width, height, 0, 0, width, height);
         this.sprites[name] = canvas;
+
+        return canvas;
     }
 }

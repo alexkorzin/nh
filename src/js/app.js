@@ -6,19 +6,14 @@ import spriteLoader from './SpriteLoader'
 import Platform from './Platform'
 import Collider from './Collider';
 import Decor from './Decor';
+import Animator from './Animator';
+import Renderer from './Renderer';
+import { resolve } from 'url';
 
 
 class Game {
     constructor() {
         this.state = 'play';
-        this.renderer = {
-            canvas: undefined,
-            context: undefined,
-            height: 600,
-            width: 800
-        };
-        this.time;
-        this.keyboard;
 
         this.animations = {};
 
@@ -29,73 +24,71 @@ class Game {
         });
     }
 
-    initRenderer() {
-        // Init renderer
-        this.renderer.canvas = document.createElement('canvas');
-        this.renderer.canvas.height = this.renderer.height;
-        this.renderer.canvas.width = this.renderer.width;
-        this.renderer.context = this.renderer.canvas.getContext('2d');
-        this.renderer.canvas.style.background = "black";
-        document.body.appendChild(this.renderer.canvas);
-
-        // console.log(this.sprites.patterns.sky)
-
-    }
-
     loadRes() {
-        return new Promise((resolve, reject) => {
+        // return new Promise((resolve, reject) => {
+        //     this.sprites = new spriteLoader();
+        //     this.sprites.loadAtlas('main', 'img/tileset.png').then(() => {
+        //         this.sprites.createPattern('ground', 16, 16, 0, 0, 'main');
+        //         this.sprites.createPattern('sky', 16, 16, 3 * 16, 21 * 16, 'main');
+        //         this.sprites.createPattern('brick', 16, 16, 32, 0, 'main');
+        //         this.sprites.createSprite('cloud', 40, 32, 0, 20 * 16, 'main');
+
+        //         this.sprites.loadAtlas('mario', 'img/mario.png').then(() => {
+        //             this.sprites.createSprite('marioBig', 16, 32, 16 * 5, 1, 'mario');                 
+        //             resolve();
+        //         })
+        //     })
+        // })
+
+
+        return new Promise(() => {
             this.sprites = new spriteLoader();
-            this.sprites.loadAtlas('main', 'img/tileset.png').then(() => {
+            this.sprites.loadAtlas({
+                name: 'main',
+                url: 'img/tileset.png'
+            },{
+                name: 'mario',
+                url: 'img/mario.png'
+            })
+            .then(()=>{
                 this.sprites.createPattern('ground', 16, 16, 0, 0, 'main');
                 this.sprites.createPattern('sky', 16, 16, 3 * 16, 21 * 16, 'main');
                 this.sprites.createPattern('brick', 16, 16, 32, 0, 'main');
-                this.sprites.createSprite('cloud', 40, 32, 0, 20*16, 'main');
-
-                this.sprites.loadAtlas('mario', 'img/mario.png').then(() => {
-                    let Aframe1 = this.sprites.createSprite('marioBig', 16, 32, 16 * 5, 1, 'mario');
-                    let Aframe2 = this.sprites.createSprite('marioBig2', 16, 32, 16 * 6+1, 1, 'mario');
-                    let Aframe3 = this.sprites.createSprite('marioBig3', 16, 32, 16 * 7+2, 1, 'mario');
-                    let Aframe4 = this.sprites.createSprite('marioBig4', 16, 32, 16 * 8+3, 1, 'mario');
-                    this.animations.marioRun = {
-                        frame1: Aframe1,
-                        frame2: Aframe2,
-                        frame3: Aframe3,
-                        frame4: Aframe4,
-                    }
-                    resolve();
-                })
+                this.sprites.createSprite('cloud', 40, 32, 0, 20 * 16, 'main');
+                this.sprites.createSprite('marioBig', 16, 32, 16 * 5, 1, 'mario');
             })
         })
     }
 
     initObjects() {
         // Init players
-        let player2 = new Player(this.sprites.sprites.marioBig, 0, 0, this.animations.marioRun);
-        let player3 = new Player(this.sprites.sprites.marioBig, 10, 50);
-        player2.gravitaion = true;
+        this.player = new Player(this.sprites.sprites.marioBig, 0, 0, this.animator, 'marioRunnigRight');
+        this.player.gravitaion = true;
 
         let platform = new Platform(this.sprites.patterns.ground, 100, 300, 50, 50);
-        let platform2 = new Platform(this.sprites.patterns.ground, 180, 300, 50, 50);
+        let platform2 = new Platform(this.sprites.patterns.brick, 180, 300, 50, 50);
 
-        let cloud = new Decor(this.sprites.sprites.cloud,100,100,40,32)
+        let cloud = new Decor(this.sprites.sprites.cloud, 100, 100, 40, 32)
 
         // Fill the scene
-        this.scene.push(player2);
-        this.scene.push(player3);
+        this.scene.push(this.player);
         this.scene.push(platform);
         this.scene.push(platform2);
         this.scene.push(cloud);
 
         // Add coliders
-        this.collider.addColider(player2, 'Screen');
-        this.collider.addColider(player2, player3);
-        this.collider.addColider(platform, player2);
-        this.collider.addColider(platform2, player2);
-        this.collider.addColider(platform, player3);
+        this.collider.addColider(this.player, 'Screen');
+        this.collider.addColider(platform, this.player);
+        this.collider.addColider(platform2, this.player);
     }
 
     init() {
-        this.initRenderer();
+        this.animator = new Animator();
+        this.animator.createAnimation('marioRunnigRight', 4, 70, 16, 32, 16 * 5, 1, 'mario', this.sprites);
+
+        this.renderer = new Renderer(800, 600);
+        this.renderer.init();
+
         this.collider = new Collider(this.renderer);
 
         this.initObjects();
@@ -106,41 +99,33 @@ class Game {
         this.render();
     }
 
-    loop() {
-        // console.log(1);
-    }
-
     render() {
-        this.renderer.context.clearRect(0, 0, this.renderer.width, this.renderer.height);
+        this.renderer.clear();
 
         // Draw here
         this.collider.runCollides();
 
         if (this.keyboard.rightButton) {
-            this.scene[0].move('right')
+            this.player.move('right')
         }
         if (this.keyboard.leftButton) {
-            this.scene[0].move('left')
+            this.player.move('left')
         }
         if (this.keyboard.upButton) {
-            this.scene[0].move('up');
+            this.player.jump();
         }
         if (this.keyboard.downButton) {
-            this.scene[0].move('down');
+            this.player.move('down');
         }
-
-        // console.log(this.scene[0].collisions)
 
         this.renderer.context.save();
         this.renderer.context.fillStyle = this.sprites.patterns.sky;
         this.renderer.context.fillRect(0, 0, this.renderer.canvas.width, this.renderer.canvas.height);
         this.renderer.context.restore();
 
-
         this.scene.forEach(obj => {
             obj.gravity();
             obj.render(this.renderer.context);
-            // obj.debugHitBox(this.renderer.context);
         })
 
         window.requestAnimationFrame(this.render.bind(this))

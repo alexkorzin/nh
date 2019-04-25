@@ -2,9 +2,9 @@
 import Physical from './Physical';
 
 export default class Player extends Physical {
-    constructor(sprite, x, y, animation) {
-        
-        super(x,y, 16, 32);
+
+    constructor(sprite, x, y, animator, animation) {
+        super(x, y, 16, 32);
 
         this.x = x || 0;
         this.y = y || 0;
@@ -19,6 +19,7 @@ export default class Player extends Physical {
         this.gravity;
 
         this.animation = animation;
+        this.animator = animator;
     }
 
     kick() {
@@ -26,14 +27,31 @@ export default class Player extends Physical {
     }
 
     jump() {
-        this.move('up')
+        let start = Date.now();
+
+        if (this.collisions.bottom) {
+
+            let timer = setInterval(() => {
+                let timePassed = Date.now() - start;
+
+                if (timePassed > 250) {
+                    clearInterval(timer);
+                    return;
+                }
+
+                this.y -= timePassed/100;
+                this.updateHitBox();
+                
+            },10)
+        }
     }
+
 
     move(direction) {
         switch (direction) {
             case 'right':
                 if (!this.collisions.right) {
-                    this.x += this.speed; this.updateHitBox(); this.animate();
+                    this.x += this.speed; this.updateHitBox(); this.animator.play(this, this.animation);
                 }
                 break;
 
@@ -58,16 +76,10 @@ export default class Player extends Physical {
     }
 
     render(ctx) {
-        // console.log(this.sprite)
         ctx.save();
         ctx.fillStyle = this.sprite;
         // ctx.fillRect(this.x, this.y, this.width, this.heigh);
         ctx.drawImage(this.sprite, this.x, this.y);
         ctx.restore();
-    }
-
-    animate(){
-        // this.sprite = this.animation.frame2
-        console.log(this.animation)
     }
 }
