@@ -8,7 +8,6 @@ import Collider from './Collider';
 import Decor from './Decor';
 import Animator from './Animator';
 import Renderer from './Renderer';
-import { resolve } from 'url';
 
 
 class Game {
@@ -102,6 +101,7 @@ class Game {
         }
         if (this.keyboard.upButton) {
             this.player.jump();
+            // this.player.move('up');
         }
         if (this.keyboard.downButton) {
             this.player.move('down');

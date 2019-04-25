@@ -8,12 +8,12 @@ export default class Player extends Physical {
 
         this.x = x || 0;
         this.y = y || 0;
-        this.heigh = 32;
+        this.height = 32;
         this.width = 16;
         this.sprite = sprite || 'orange';
 
-        this.speed = 1;
-        this.weight = 10;
+        this.speed = 2;
+        this.weight = 6;
         this.health = 100;
         this.state = 'stay';
         this.gravity;
@@ -27,23 +27,7 @@ export default class Player extends Physical {
     }
 
     jump() {
-        let start = Date.now();
-
-        if (this.collisions.bottom) {
-
-            let timer = setInterval(() => {
-                let timePassed = Date.now() - start;
-
-                if (timePassed > 250) {
-                    clearInterval(timer);
-                    return;
-                }
-
-                this.y -= timePassed/100;
-                this.updateHitBox();
-                
-            },10)
-        }
+        
     }
 
 
@@ -51,7 +35,10 @@ export default class Player extends Physical {
         switch (direction) {
             case 'right':
                 if (!this.collisions.right) {
-                    this.x += this.speed; this.updateHitBox(); this.animator.play(this, this.animation);
+                    this.x += this.speed; this.updateHitBox(); 
+                    if(this.collisions.bottom){
+                        this.animator.play(this, this.animation);
+                    }
                 }
                 break;
 

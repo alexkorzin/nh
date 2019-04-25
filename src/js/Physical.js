@@ -34,7 +34,7 @@ export default class Physical{
     gravity() {
         if (this.gravitaion){
             if (!this.collisions.bottom) {
-                this.y += this.speed; 
+                this.y += this.weight; 
                 this.updateHitBox();
             }
         }

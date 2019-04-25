@@ -6,17 +6,6 @@ export default class SpriteLoader {
         this.sprites = {};
     }
 
-    // loadAtlas(name, url) {
-    //     return new Promise((resolve, reject) => {
-    //         let image = new Image();
-    //         image.src = url;
-    //         image.onload = () => {
-    //             this.sheets[name] = image;
-    //             resolve();
-    //         }
-    //     })
-    // }
-
     loadAtlas(...obj) {
         return new Promise((resolve, reject) => {
             Promise.all(obj.map(o => {
@@ -51,7 +40,6 @@ export default class SpriteLoader {
         canvas.width = width;
         ctx.drawImage(this.sheets[sheet], xOffset, yOffset, width, height, 0, 0, width, height);
         this.sprites[name] = canvas;
-
         return canvas;
     }
 }

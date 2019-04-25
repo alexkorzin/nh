@@ -25,7 +25,8 @@ export default class Collider {
             let checkColide = () => {
                 // Left
                 if (object1.hitBox.left <= 0) {
-                    object1.collisions.left = true
+                    object1.collisions.left = true;
+                    object1.x = 0;
                 }
                 else {
                     object1.collisions.left = false
@@ -34,6 +35,7 @@ export default class Collider {
                 // Top
                 if (object1.hitBox.top <= 0) {
                     object1.collisions.top = true
+                    object1.y = 0;
                 }
                 else {
                     object1.collisions.top = false
@@ -42,6 +44,7 @@ export default class Collider {
                 // Right
                 if (object1.hitBox.right >= this.renderer.width) {
                     object1.collisions.right = true
+                    object1.x = this.renderer.width - object1.width;
                 }
                 else {
                     object1.collisions.right = false
@@ -50,6 +53,7 @@ export default class Collider {
                 // Bottom
                 if (object1.hitBox.bottom >= this.renderer.height) {
                     object1.collisions.bottom = true
+                    object1.y = this.renderer.height - object1.height;
                 }
                 else {
                     object1.collisions.bottom = false
