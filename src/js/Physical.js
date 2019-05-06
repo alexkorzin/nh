@@ -19,7 +19,6 @@ export default class Physical{
             top: false
         }
         this.gravitaion = false;
-
     }
 
     updateHitBox() {

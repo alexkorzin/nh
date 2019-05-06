@@ -1,45 +1,49 @@
+
 export default class Animator {
-    constructor() {
-        this.animations = {
-            runExample: {
-                frames: [1, 2, 3],
-                frameRate: 1000 / 60
-            }
-        }
+    constructor(spriteLoader) {
+        this.spriteLoader = spriteLoader;
     }
 
-    createAnimation(name, framesCount, frameRate, width, height, xStart, yStart, spriteSheet, spriteLoader) {
-        this.animations[name] = {
+    createAnimation(name, framesCount, frameRate, width, height, xStart, yStart, spriteSheet, isReverse, loop) {
+        let animation = {
             frames: [],
             frameRate: frameRate,
             isAnimating: false,
-            currentFrame: 1
+            currentFrame: 1,
+            loop: loop
         }
 
         for (let i = 0; i < framesCount; i++) {
-            this.animations[name].frames.push(
-                spriteLoader.createSprite(`${name}`, width, height, xStart + i * width + i, yStart, `${spriteSheet}`)
-            )
-        }
-    }
 
-    play(obj, animationName){
-        if (this.animations[animationName].isAnimating) {
-            return false;
-        } else {
-            this.animations[animationName].isAnimating = true;
-            this.animations[animationName].currentFrame++;
-
-            obj.sprite = this.animations[animationName].frames[this.animations[animationName].currentFrame];
-
-            if(this.animations[animationName].currentFrame === this.animations[animationName].frames.length-1){
-                this.animations[animationName].currentFrame = 0;
+            if(isReverse){
+                animation.frames.push(
+                    this.spriteLoader.createSprite(`${name}`, width, height, xStart + i * width, yStart, `${spriteSheet}`, true)
+                )
+            } else{
+                animation.frames.push(
+                    this.spriteLoader.createSprite(`${name}`, width, height, xStart + i * width, yStart, `${spriteSheet}`, false)
+                )
             }
 
-            setTimeout(()=>{
-                this.animations[animationName].isAnimating = false;
-            }, this.animations[animationName].frameRate)
+            
         }
+
+        return animation;
+    }
+
+    play(obj, animationName) {
+        obj.isAnimating = true;
+        obj.animations[animationName].currentFrame++;
+
+        obj.sprite = obj.animations[animationName].frames[obj.animations[animationName].currentFrame];
+
+        if (obj.animations[animationName].currentFrame === obj.animations[animationName].frames.length - 1) {
+            obj.animations[animationName].currentFrame = 0;
+        }
+
+        setTimeout(() => {
+            obj.isAnimating = false;
+        }, obj.animations[animationName].frameRate)
     }
 
 }

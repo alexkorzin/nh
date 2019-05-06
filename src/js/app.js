@@ -13,10 +13,11 @@ import Renderer from './Renderer';
 class Game {
     constructor() {
         this.state = 'play';
-
         this.animations = {};
-
         this.scene = [];
+
+        this.playerSpritePack = {};
+
 
         this.loadRes().then(() => {
             this.init();
@@ -30,8 +31,11 @@ class Game {
                 name: 'main',
                 url: 'img/tileset.png'
             }, {
-                name: 'mario',
-                url: 'img/mario.png'
+                name: 'player',
+                url: 'img/player.png'
+            },{
+                name: 'background',
+                url: 'img/bg.png'
             })
             .then(() => {
                 this.createSprites();
@@ -45,12 +49,16 @@ class Game {
         this.sprites.createPattern('sky', 16, 16, 3 * 16, 21 * 16, 'main');
         this.sprites.createPattern('brick', 16, 16, 32, 0, 'main');
         this.sprites.createSprite('cloud', 40, 32, 0, 20 * 16, 'main');
-        this.sprites.createSprite('marioBig', 16, 32, 16 * 5, 1, 'mario');
+        let sprite1 = this.sprites.createSprite('playerRight', 16, 32, 0, 0, 'player');
+        let sprite2 = this.sprites.createSprite('playerLeft', 16, 32, 0, 0, 'player', true);
+        this.playerSpritePack.right = sprite1;
+        this.playerSpritePack.left = sprite2;
     }
 
     initObjects() {
         // Init players
-        this.player = new Player(this.sprites.sprites.marioBig, 0, 0, this.animator, 'marioRunnigRight');
+        this.animator = new Animator(this.sprites);
+        this.player = new Player(this.playerSpritePack, 0, 0, this.animator);
         this.player.gravitaion = true;
 
         let platform = new Platform(this.sprites.patterns.ground, 100, 300, 50, 50);
@@ -68,11 +76,15 @@ class Game {
         this.collider.addColider(this.player, 'Screen');
         this.collider.addColider(platform, this.player);
         this.collider.addColider(platform2, this.player);
+
+        // animations
+        let MarioRunRight = this.animator.createAnimation('MarioRunRight', 4, 70, 16, 32, 0, 0, 'player')
+        let MarioRunLeft = this.animator.createAnimation('MarioRunRight', 4, 70, 16, 32, 0, 0, 'player', true)
+        this.player.addAnimation('RunRight', MarioRunRight);
+        this.player.addAnimation('RunLeft', MarioRunLeft);
     }
 
     init() {
-        this.animator = new Animator();
-        this.animator.createAnimation('marioRunnigRight', 4, 70, 16, 32, 16 * 5, 1, 'mario', this.sprites);
 
         this.renderer = new Renderer(800, 600);
         this.renderer.init();
